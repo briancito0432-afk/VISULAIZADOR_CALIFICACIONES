@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Alumnos</title>
+    <style>
+        /* --- 1. IMPORTACIÓN DE FUENTE Y VARIABLES --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        :root {
+            --color-primario: #007bff;
+            --color-primario-hover: #0056b3;
+            /* -- NUEVO: Colores para el módulo Alumnos -- */
+            --color-alumnos: #6f42c1;
+            --color-alumnos-hover: #5a32a3;
+
+            --color-secundario: #6c757d;
+            --color-secundario-hover: #5a6268;
+            --color-exito: #28a745;
+            --color-exito-hover: #218838;
+            --color-peligro: #dc3545;
+            --color-texto: #333;
+            --color-fondo-cuerpo: #f0f2f5;
+            --color-fondo-card: #ffffff;
+            --color-borde: #dee2e6;
+            --sombra: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --radio-borde: 8px;
+        }
+
+        /* --- 2. ESTILOS GLOBALES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            margin: 20px;
+            background-color: var(--color-fondo-cuerpo);
+            color: var(--color-texto);
+            line-height: 1.6;
+            font-size: 15px; /* -- CAMBIO: Tamaño base reducido de 16px (default) a 15px -- */
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--color-texto);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 500;
+            /* -- CAMBIO: Borde movido a reglas específicas del módulo -- */
+            padding-bottom: 10px;
+        }
+        
+        /* -- NUEVO: Bordes de H2 coloreados por módulo -- */
+        #modulo-calificaciones h2 {
+            border-bottom: 2px solid var(--color-primario);
+        }
+        #modulo-alumnos h2 {
+            border-bottom: 2px solid var(--color-alumnos);
+        }
+
+        hr {
+            display: none; 
+        }
+
+        /* --- 3. CLASES DE DISEÑO (NUEVAS) --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background-color: var(--color-fondo-card);
+            border-radius: var(--radio-borde);
+            box-shadow: var(--sombra);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* --- 4. NAVEGACIÓN DE MÓDULOS --- */
+        #nav-modulos {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--color-borde);
+        }
+
+        #nav-modulos button {
+            background-color: var(--color-secundario);
+            font-size: 17px; /* -- CAMBIO: Reducido de 18px -- */
+            font-weight: 500;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--radio-borde);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #nav-modulos button:hover:not(.active) { /* -- CAMBIO: :not(.active) añadido -- */
+            background-color: var(--color-secundario-hover);
+        }
+        
+        /* -- NUEVO: Hover específico para botón Alumnos (inactivo) -- */
+        #nav-modulos #btn-nav-alumnos:hover:not(.active) {
+            background-color: var(--color-alumnos-hover);
+        }
+
+        #nav-modulos button.active {
+            background-color: var(--color-primario);
+        }
+        
+        /* -- NUEVO: Color activo para botón Alumnos -- */
+        #nav-modulos #btn-nav-alumnos.active {
+            background-color: var(--color-alumnos);
+        }
+
+
+        /* --- 5. MENÚS DE ACCIONES --- */
+        #menu-acciones-calif, #menu-acciones-alumnos {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* --- 6. ESTILOS DE FORMULARIO (Botones, Inputs) --- */
+        button, select, input[type="text"] {
+            padding: 10px 15px;
+            font-size: 15px; /* -- CAMBIO: Reducido de 16px -- */
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            background-color: #fff;
+            color: var(--color-texto);
+            border: 1px solid var(--color-borde);
+            border-radius: var(--radio-borde);
+            transition: all 0.2s ease;
+        }
+
+        select, input[type="text"] {
+            cursor: text;
+            min-width: 200px;
+        }
+
+        button {
+            color: white;
+            background-color: var(--color-primario);
+            border-color: var(--color-primario);
+            font-weight: 500;
+        }
+
+        button:hover {
+            background-color: var(--color-primario-hover);
+            border-color: var(--color-primario-hover);
+        }
+
+        #btn-buscar-calif {
+            background-color: var(--color-exito);
+            border-color: var(--color-exito);
+        }
+        #btn-buscar-calif:hover {
+            background-color: var(--color-exito-hover);
+            border-color: var(--color-exito-hover);
+        }
+
+        /* --- 7. ESTILOS DE TABLA --- */
+        .tabla-wrapper {
+            overflow-x: auto; 
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 13px; /* -- CAMBIO: Reducido de 14px -- */
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-borde);
+        }
+
+        thead th {
+            background-color: #f8f9fa;
+            color: var(--color-texto);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px; /* Mantenido en 12px, es un buen tamaño para header */
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #fdfdfd;
+        }
+
+        tbody tr:hover {
+            background-color: #f0f8ff; 
+        }
+
+        .estatus-aprobado {
+            font-weight: 600;
+            color: var(--color-exito);
+            text-align: center;
+        }
+
+        .estatus-reprobado {
+            font-weight: 600;
+            color: var(--color-peligro);
+            text-align: center;
+        }
+
+        .celda-centrada {
+            text-align: center;
+        }
+
+
+        /* --- 8. OTROS --- */
+        .paginacion {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .paginacion button { 
+             /* -- CAMBIO: Color de fondo movido a reglas específicas -- */
+             color: white; 
+        }
+        .paginacion button:disabled { background-color: #e0e0e0; cursor: not-allowed; }
+        .paginacion span { 
+            font-size: 15px; /* -- CAMBIO: Reducido de 16px -- */
+            font-weight: bold; 
+        }
+
+        /* -- NUEVO: Colores de paginación por módulo -- */
+        #paginacion-calif button {
+            background-color: var(--color-primario);
+        }
+        #paginacion-calif button:hover:not(:disabled) {
+            background-color: var(--color-primario-hover);
+        }
+        #paginacion-alumnos button {
+            background-color: var(--color-alumnos);
+        }
+        #paginacion-alumnos button:hover:not(:disabled) {
+            background-color: var(--color-alumnos-hover);
+        }
+
+        #mensaje-error-calif, #mensaje-error-alumnos {
+            text-align: center;
+            color: var(--color-peligro);
+            font-weight: bold;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: var(--radio-borde);
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container"> 
+
+        <h1>Visualizador de Calificaciones</h1>
+
+        <nav id="nav-modulos">
+            <button class="nav-btn active" id="btn-nav-calificaciones">Módulo Calificaciones</button>
+            <button class="nav-btn" id="btn-nav-alumnos">Módulo Alumnos</button>
+        </nav>
+
+
+        <div id="modulo-calificaciones" class="modulo-contenido">
+            <h2>Acciones de Calificaciones</h2>
+            
+            <div id="menu-acciones-calif" class="card"> 
+                <button id="btn-ver-datos-calif">Ver Todos los Datos</button>
+                <select id="select-filtro-calif">
+                    <option value="todos">Ver Todos</option>
+                    <option value="aprobados">Ver Aprobados (>= 70)</option>
+                    <option value="reprobados">Ver Reprobados (< 70)</option>
+                </select>
+                <select id="select-ordenar-calif">
+                    <option value="id_desc">Ordenar por ID (Mayor a Menor)</option>
+                    <option value="id_asc">Ordenar por ID (Menor a Mayor)</option>
+                    <option value="apellido_asc">Ordenar por Apellido (A-Z)</option>
+                    <option value="nombre_asc">Ordenar por Nombre (A-Z)</option>
+                </select>
+                <span style="border-left: 2px solid #ccc; height: 40px; margin: 0 5px;"></span>
+                <input type="text" id="campo-buscar-calif" placeholder="Buscar por ID, nombre o apellido...">
+                <button id="btn-buscar-calif" style="background-color: #28a745;">Buscar</button>
+            </div>
+            
+            <h2 id="titulo-tabla-calif"></h2>
+            <div id="mensaje-error-calif" style="display: none;"></div>
+            
+            <div id="contenedor-tabla-calif" class="card"> 
+                <p style="text-align: center; padding: 20px;">Selecciona "Ver Todos los Datos" o realiza una búsqueda.</p>
+            </div>
+
+            <div class="paginacion" id="paginacion-calif" style="display: none;">
+                <button id="btn-calif-prev">&laquo; Anterior</button>
+                <span id="info-calif-page">Página 1 de 1</span>
+                <button id="btn-calif-next">Siguiente &raquo;</button>
+            </div>
+        </div>
+
+
+        <div id="modulo-alumnos" class="modulo-contenido" style="display: none;">
+            <h2>Acciones de Alumnos</h2>
+            
+            <div id="menu-acciones-alumnos" class="card"> 
+                <label for="select-ordenar-alumnos">Ordenar por:</label>
+                <select id="select-ordenar-alumnos">
+                    <option value="id_desc">ID (Mayor a Menor)</option>
+                    <option value="id_asc">ID (Menor a Mayor)</option>
+                    <option value="apellido_asc">Apellido (A-Z)</option>
+                    <option value="nombre_asc">Nombre (A-Z)</option>
+                </select>
+            </div>
+            
+            <h2 id="titulo-tabla-alumnos"></h2>
+            <div id="mensaje-error-alumnos" style="display: none;"></div>
+            
+            <div id="contenedor-tabla-alumnos" class="card"> 
+                <p style="text-align: center; padding: 20px;">Cargando datos de alumnos...</p>
+            </div>
+
+            <div class="paginacion" id="paginacion-alumnos" style="display: none;">
+                <button id="btn-alumnos-prev">&laquo; Anterior</button>
+                <span id="info-alumnos-page">Página 1 de 1</span>
+                <button id="btn-alumnos-next">Siguiente &raquo;</button>
+            </div>
+        </div>
+
+        
+        <script src="main.js"></script>
+    </div> 
+</body>
+</html>
